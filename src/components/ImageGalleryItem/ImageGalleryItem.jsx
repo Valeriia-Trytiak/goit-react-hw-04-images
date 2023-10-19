@@ -27,7 +27,8 @@ const customStyles = {
   },
 };
 
-export const ImageGalleryItem = ({ id, webformatURL, tags, largeImageURL })=> {
+export const ImageGalleryItem = ({ searchImage }) => {
+  const { id, webformatURL, tags, largeImageURL } = searchImage;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
