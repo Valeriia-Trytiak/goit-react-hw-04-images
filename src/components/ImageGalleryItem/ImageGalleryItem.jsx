@@ -1,4 +1,4 @@
-import { Modal } from 'components/Modal/Modal';
+import { Modal } from '../Modal/Modal.styled';
 import React, { Component } from 'react';
 import { GalleryImage, GalleryItem } from './ImageGalleryItem.styled';
 
