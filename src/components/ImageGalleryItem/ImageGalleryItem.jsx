@@ -1,5 +1,5 @@
 import { Modal } from '../Modal/Modal.styled';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { GalleryImage, GalleryItem } from './ImageGalleryItem.styled';
 
 
@@ -27,37 +27,28 @@ const customStyles = {
   },
 };
 
-export class ImageGalleryItem extends Component {
-  state = {
-    isModalOpen: false,
-  };
+export const ImageGalleryItem = ({ id, webformatURL, tags, largeImageURL })=> {
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  openModal = () => {
-    if (!this.state.isModalOpen) {
-      this.setState({ isModalOpen: true });
+  const openModal = () => {
+    if (!isModalOpen) {
+      setIsModalOpen(true);
     }
   };
 
-  closeModal = () => {
-    this.setState({ isModalOpen: false });
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
-  render() {
-    const { id, webformatURL, tags, largeImageURL } = this.props.searchImage;
-    const { isModalOpen } = this.state;
-
-    return (
-      <GalleryItem key={id}>
-        <GalleryImage src={webformatURL} alt={tags} loading="lazy" onClick={this.openModal} />
-        <Modal
-          isOpen={isModalOpen}
-          onRequestClose={this.closeModal}
-          style={customStyles}
-          contentLabel="Image Modal"
-          largeImageURL={largeImageURL}
-          tags={tags}
-        />
-      </GalleryItem>
-    );
-  }
+  return <GalleryItem key={id}>
+      <GalleryImage src={webformatURL} alt={tags} loading="lazy" onClick={openModal} />
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        style={customStyles}
+        contentLabel="Image Modal"
+        largeImageURL={largeImageURL}
+        tags={tags}
+      />
+    </GalleryItem>
 }

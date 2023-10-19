@@ -1,87 +1,79 @@
 import { ColorRing } from 'react-loader-spinner';
 import toast, { Toaster } from 'react-hot-toast';
+import { useEffect, useState } from "react";
 
-import { Component } from "react";
+import { fechServisSearchImg } from "../API";
+
 import { Searchbar } from "./Searchbar/Searchbar";
 import { ImageGallery } from "./ImageGallery/ImageGallery";
 import { Button } from "./Button/Button.jsx";
-import { fechServisSearchImg } from "../API";
 import { Container } from './Container/Container.styled';
 import { ContainerLoader } from './ContainerLoader/ContainerLoader';
 
+export const App = ()=>{
+const [gallery, setGallery] = useState([]); 
+const [searchValue, setSearchValue]= useState("");
+const [page, setPage] = useState(1);
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState(false);
+const [loadMore, setLoadMore] = useState(false);
 
-export class App extends Component {
-  
-state= {
-gallery:[],
-searchValue:"",
-page: 1,
-isLoading: false,
-error: false,
-loadMore: false
-}
 
 // Записую до стану значення пошуку, скидаю поточну сторінку та масив зображень
-  uppdateSearchbar = (searchName)=> {
-    this.setState(() => ({
-      searchValue: searchName,
-      gallery: [],
-      page: 1,
-      loadMore: false, 
-
-    }));
-  };
+const uppdateSearchbar = (searchName)=> {
+  setSearchValue(searchName);
+  setGallery([]);
+  setPage(1);
+  setLoadMore(false);
+};
 
 //При кліку по Завантажити ще, змінюю стейт
-handlerButton = ()=> {
-  this.setState(prevState => ({ page: prevState.page + 1 }));
+const handlerButton = ()=> {
+  setPage(prevState => prevState + 1);
 }
 
-async componentDidUpdate(prevProps, prevState) {
 
-  const { searchValue, page } = this.state;
-  try {
-      if ((prevState.searchValue !== searchValue) || page !== prevState.page) {
-
-      this.setState({ isLoading: true, error: false });
-      const searchImg = await fechServisSearchImg(searchValue, page);
-console.log(searchImg)
-      toast.success("Images found successfully!")
-
-      this.setState({
-        gallery: page === 1 ? searchImg.hits : [...prevState.gallery, ...searchImg.hits],
-        isLoading: false, 
-        error: false,
-        loadMore: this.state.page < Math.ceil(searchImg.totalHits / 12)
-
-      });
-    }
-  } catch (error) {
-    this.setState({ error: true, isLoading: false }); 
+useEffect(()=> {
+  if (searchValue === "") {
+    return
   }
+  async function fechImgs () {
+    try {
+      setIsLoading(true);
+      setError(false);
+      const searchImg = await fechServisSearchImg(searchValue, page);
+      toast.success("Images found successfully!")
+      setGallery(prevState => page === 1 ? searchImg.hits : [...prevState, ...searchImg.hits])
+      setLoadMore(page < Math.ceil(searchImg.totalHits / 12));
+    }
+    catch (error) {
+      setError(true);
+  }
+  finally {
+    setIsLoading(false);
+  }
+  }
+  fechImgs();
+}, [searchValue, page]);
+
+return <Container>
+<Searchbar onSubmit={uppdateSearchbar} />
+{gallery.length > 0 && <ImageGallery galleryImages = {gallery} /> }
+
+{isLoading && <ContainerLoader>
+<ColorRing
+visible={true}
+height="80"
+width="80"
+ariaLabel="blocks-loading"
+colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']}
+/>
+</ContainerLoader>}
+
+{loadMore &&  <Button onClickButton ={handlerButton}/> } 
+
+{error && <span>Whoops... Error! Please, reload this page!</span>}
+<Toaster  position="top-right" /> 
+</Container>
+
 }
-
-  render () {
-    const { gallery, isLoading, error, loadMore }= this.state;
-
-  return <Container>
-  <Searchbar onSubmit={this.uppdateSearchbar} />
-  {gallery.length > 0 && <ImageGallery galleryImages = {gallery} /> }
-
-  {isLoading && <ContainerLoader>
-  <ColorRing
-  visible={true}
-  height="80"
-  width="80"
-  ariaLabel="blocks-loading"
-  colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']}
-  />
-  </ContainerLoader>}
-
-  {loadMore &&  <Button onClickButton ={this.handlerButton}/> } 
-
-  {error && <span>Whoops... Error! Please, reload this page!</span>}
-  <Toaster  position="top-right" /> 
-  </Container>
-  } 
-};
