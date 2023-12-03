@@ -36,8 +36,6 @@ export const App = () => {
 
   //Ініт бібліотеки анімації
   function particlesInit(tsParticles) {
-    console.log('init', tsParticles);
-
     loadBigCirclesPreset(tsParticles);
   }
 
