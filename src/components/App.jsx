@@ -9,11 +9,14 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button.jsx';
 import { Container } from './Container/Container.styled';
 import { ContainerLoader } from './ContainerLoader/ContainerLoader';
+import { SliderButtonTheme } from 'components/SliderButtonTheme/SliderButtonTheme';
 
 import Particles from 'react-tsparticles';
 import { loadBigCirclesPreset } from 'tsparticles-preset-big-circles';
+import { loadSeaAnemonePreset } from 'tsparticles-preset-sea-anemone';
 
 export const App = () => {
+  const [currentTheme, setCurrentTheme] = useState('default');
   const [gallery, setGallery] = useState([]);
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(1);
@@ -34,9 +37,26 @@ export const App = () => {
     setPage(prevState => prevState + 1);
   };
 
+  const themes = {
+    default: {
+      preset: 'big-circles',
+    },
+    anotherTheme: {
+      preset: 'seaAnemone',
+    },
+  };
+
+  const handleThemeChange = newTheme => {
+    setCurrentTheme(newTheme);
+  };
+
   //Ініт бібліотеки анімації
-  function particlesInit(tsParticles) {
-    loadBigCirclesPreset(tsParticles);
+  async function particlesInit(tsParticles) {
+    if (currentTheme === 'default') {
+      await loadBigCirclesPreset(tsParticles);
+    } else if (currentTheme === 'anotherTheme') {
+      await loadSeaAnemonePreset(tsParticles);
+    }
   }
 
   useEffect(() => {
@@ -65,6 +85,11 @@ export const App = () => {
   return (
     <Container>
       <Searchbar onSubmit={uppdateSearchbar} />
+      <SliderButtonTheme
+        themes={themes}
+        currentTheme={currentTheme}
+        onChange={handleThemeChange}
+      ></SliderButtonTheme>
       {gallery.length > 0 && <ImageGallery galleryImages={gallery} />}
 
       {isLoading && (
@@ -83,9 +108,14 @@ export const App = () => {
 
       {error && <span>Whoops... Error! Please, reload this page!</span>}
       <Toaster position="top-right" />
+
       <Particles
         options={{
-          preset: 'big-circles',
+          preset: currentTheme === 'default' ? 'big-circles' : 'seaAnemone',
+          backgroundMode:
+            currentTheme === 'anotherTheme'
+              ? { enable: true, zIndex: -1 }
+              : undefined,
         }}
         init={particlesInit}
       />
