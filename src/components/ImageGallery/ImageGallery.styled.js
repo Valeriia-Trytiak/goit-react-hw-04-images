@@ -11,4 +11,5 @@ export const ImagesList = styled.ul`
   list-style: none;
   margin-left: auto;
   margin-right: auto;
+  z-index: 2;
 `;
