@@ -110,6 +110,7 @@ export const App = () => {
       <Toaster position="top-right" />
 
       <Particles
+        key={currentTheme}
         options={{
           preset: currentTheme === 'default' ? 'big-circles' : 'seaAnemone',
           backgroundMode:
